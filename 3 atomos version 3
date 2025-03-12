@@ -79,7 +79,7 @@ void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3])
                     V[i][j] = pow(a / r[i][j], n);
                     
                     // Acumulamos la densidad electrónica en el átomo i
-                    rho[i] += pow(a / r[i][j], m);
+                    rho[i] = rho[i] + pow(a / r[i][j], m);
                 }
             }
         }
@@ -93,7 +93,7 @@ void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3])
             {
                 if (i != j)
                 {
-                    sum_V += V[i][j];
+                     sum_V = sum_V + V[i][j];
                 }
             }
 
@@ -101,7 +101,7 @@ void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3])
             U[i] = eps * (0.5 * sum_V - c * sqrt(rho[i]));
 
             // Sumamos la energía de cada átomo a la energía total del sistema
-            Utot += U[i];
+            Utot = Utot + U[i];
         }
 
         // Imprimimos el valor de x (factor de escala) y la energía total Utot
