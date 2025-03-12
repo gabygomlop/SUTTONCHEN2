@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <math.h>
+
+#define N 3  // Número de átomos
+
+void SuttonChen(float positions[N][3], int n, int m, float eps, float a, float c);
+
+int main(void)
+{
+    int n = 9, m = 6;
+    float eps = 0.015707, a = 3.52, c = 39.432;
+
+    // Coordenadas de 3 átomos en 3D (simplificado)
+    float positions[N][3] = {
+        {0.0, 0.0, 0.0},  // Átomo 1 en el origen
+        {2.5, 0.0, 0.0},  // Átomo 2 a 2.5 Å en X
+        {0.0, 2.5, 0.0}   // Átomo 3 a 2.5 Å en Y
+    };
+
+    SuttonChen(positions, n, m, eps, a, c);
+    return 0;
+}
+
+void SuttonChen(float positions[N][3], int n, int m, float eps, float a, float c)
+{
+    float Utotal = 0.0;
+
+    for (int i = 0; i < N; i++)
+    {
+        float rho_i = 0.0;
+        float Ui = 0.0;
+
+        for (int j = 0; j < N; j++)
+        {
+            if (i != j)
+            {
+                float dx = positions[i][0] - positions[j][0];
+                float dy = positions[i][1] - positions[j][1];
+                float dz = positions[i][2] - positions[j][2];
+
+                float r_ij = sqrt(dx * dx + dy * dy + dz * dz);
+                
+                // Evitar divisiones por cero
+                if (r_ij > 0.0001)
+                {
+                    rho_i += pow(a / r_ij, m);
+                    Ui += 0.5 * pow(a / r_ij, n);
+                }
+            }
+        }
+
+        Ui = eps * (Ui - c * sqrt(rho_i));
+        Utotal += Ui;
+    }
+
+    printf("Energía total del sistema: %f eV\n", Utotal);
+}
