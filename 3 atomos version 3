@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <math.h>
+
+// Función que implementa el potencial de Sutton-Chen
+void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3]);
+
+int main(void)
+{
+    // Declaración de parámetros para el modelo de Sutton-Chen
+    float a, eps, c; // a = parámetro de red, eps = profundidad del potencial, c = constante del modelo
+    int n, m; // n y m son exponentes del potencial
+
+    // Parámetros específicos para el níquel
+    a = 3.52;        // Parámetro de red en Ångstroms
+    eps = 0.015707;  // Energía en eV
+    n = 9;           // Exponente de la repulsión
+    m = 6;           // Exponente de la atracción
+    c = 39.432;      // Constante de Sutton-Chen
+
+    // Definimos la posición de tres átomos en un triángulo rectángulo en coordenadas cartesianas
+    float atomos[3][3] = 
+    {
+        {0.0, 0.0, 0.0},  // Átomo 1 en el origen
+        {1.0, 0.0, 0.0},  // Átomo 2 desplazado en x
+        {0.0, 1.0, 0.0}   // Átomo 3 desplazado en y
+    };
+
+    // Llamamos a la función para calcular la energía potencial del sistema
+    SuttonChen(a, n, m, eps, c, atomos);
+    return 0;
+}
+
+// Implementación de la función Sutton-Chen
+void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3])
+{
+    // Matrices para almacenar distancias y potenciales entre átomos
+    float r[3][3];   // Matriz de distancias entre los átomos
+    float V[3][3];   // Matriz de potenciales repulsivos
+    float rho[3];    // Densidad electrónica en cada átomo
+    float U[3];      // Energía en cada átomo
+    float Utot;      // Energía total del sistema
+    float x;         // Factor de escala para las posiciones atómicas
+
+    // Exploramos valores del factor de escala x en el rango [0.1, 5] con un incremento de 0.05
+    for (x = 0.1; x < 5; x += 0.05)
+    {
+        Utot = 0.0; // Reiniciamos la energía total en cada iteración
+
+        // Escalamos las posiciones de los átomos multiplicándolas por x
+        float atm_scaled[3][3];
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                atm_scaled[i][j] = atm[i][j] * x;
+            }
+        }
+
+        // Inicializamos rho (densidad electrónica) y U (energía individual) en cero para cada átomo
+        for (int i = 0; i < 3; i++)
+        {
+            rho[i] = 0.0;
+            U[i] = 0.0;
+        }
+
+        // Calculamos las distancias entre los átomos y el potencial repulsivo
+        for (int i = 0; i < 3; i++) // Iteramos sobre cada átomo i
+        {
+            for (int j = 0; j < 3; j++) // Iteramos sobre cada átomo j
+            {
+                if (i != j) // Evitamos calcular la distancia de un átomo consigo mismo
+                {
+                    // Calculamos la distancia euclidiana entre los átomos i y j
+                    r[i][j] = sqrt(pow(atm_scaled[i][0] - atm_scaled[j][0], 2) +
+                                   pow(atm_scaled[i][1] - atm_scaled[j][1], 2) +
+                                   pow(atm_scaled[i][2] - atm_scaled[j][2], 2));
+
+                    // Calculamos la contribución del potencial repulsivo Sutton-Chen
+                    V[i][j] = pow(a / r[i][j], n);
+                    
+                    // Acumulamos la densidad electrónica en el átomo i
+                    rho[i] += pow(a / r[i][j], m);
+                }
+            }
+        }
+
+        // Calculamos la energía total sumando las contribuciones de cada átomo
+        for (int i = 0; i < 3; i++)
+        {
+            float sum_V = 0.0; // Variable auxiliar para la suma de potenciales repulsivos
+
+            for (int j = 0; j < 3; j++)
+            {
+                if (i != j)
+                {
+                    sum_V += V[i][j];
+                }
+            }
+
+            // Calculamos la energía de cada átomo usando la ecuación de Sutton-Chen
+            U[i] = eps * (0.5 * sum_V - c * sqrt(rho[i]));
+
+            // Sumamos la energía de cada átomo a la energía total del sistema
+            Utot += U[i];
+        }
+
+        // Imprimimos el valor de x (factor de escala) y la energía total Utot
+        printf("%f, %f\n", x, Utot);
+    }
+}
