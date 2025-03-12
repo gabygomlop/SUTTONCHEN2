@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <math.h>
+
+// Declaración de la función que calcula el potencial de Sutton-Chen para dos átomos
+void SuttonChen(float a, int n, int m, float eps, float c); //Se escriben los tipos de variables que recibe la funcion 
+
+int main(void)
+{
+    // Definimos los parámetros del modelo para el níquel según el paper 
+    
+    float a = 3.52;      // Parámetro de red (Å)
+    float eps = 0.015707; // Energía de cohesión (eV)
+    int n = 9;           // Exponente de la parte atractiva
+    int m = 6;           // Exponente de la parte repulsiva
+    float c = 39.432;    // Factor de normalización 
+
+    // Llamamos a la función para calcular el potencial
+    SuttonChen(a, n, m, eps, c);
+
+    return 0;
+}
+
+// Función que evalúa el potencial de Sutton-Chen para un par de átomos a diferentes distancias
+void SuttonChen(float a, int n, int m, float eps, float c)
+{
+    float r, U1, U2, Utot, rho1, rho2, V12, V21;
+
+    // Iteramos sobre la distancia entre los átomos en un rango de 0.05 a 5 Å
+    for (r = 0.05; r < 5; r += 0.05)
+    {
+        // Parte repulsiva del potencial (primer término de la ecuación)
+        V12 = pow(a / r, n); //pow es una funcion de math.h 
+        V21 = pow(a / r, n); //pow es una funcion de math.h
+
+        // Densidad electrónica en cada átomo (segundo término de la ecuación)
+        rho1 = pow(a / r, m); //pow es una funcion de math.h
+        rho2 = pow(a / r, m); //pow es una funcion de math.h
+
+        // Energía potencial individual de cada átomo
+        U1 = eps * (0.5 * V12 - c * sqrt(rho1));
+        U2 = eps * (0.5 * V21 - c * sqrt(rho2));
+
+        // Energía potencial total del sistema de 2 átomos
+        Utot = U1 + U2;
+
+        // Imprimimos los valores obtenidos: distancia (r) y energía potencial total (Utot)
+        printf("Distancia: %.2f Å, Energía Potencial: %.6f eV\n", r, Utot);
+    }
+}
