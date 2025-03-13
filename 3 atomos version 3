@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <math.h>
 
-// Función que implementa el potencial de Sutton-Chen
-void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3]);
+// Se declara la función que implementa el potencial de Sutton-Chen
+void SuttonChen(float a, int n, int m, float eps, float c, float atm[3][3]); tipos de datos que se pasan 
 
 int main(void)
 {
